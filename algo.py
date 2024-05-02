@@ -8,6 +8,9 @@ Overall chain of thought for pricing pipeline:
 4/ run the final pipeline and present the results
 """
 
+"""
+Bermudan basket option pricer: M203 Numerical finance project
+"""
 
 class algorithm():
     def __init__(self) -> None:
@@ -18,9 +21,6 @@ class algorithm():
         
         # simulation parameters
         self.nb_simu = 10e6
-        self.method = None
-        self.random_sequence = None
-        self.resolution_scheme = None
 
         # single underlying options parameters
         self.spot_single = 50
@@ -35,16 +35,22 @@ class algorithm():
         # bermudan feature schedule
         self.bermudan = [1/24, 1/12, 3/24, 2/12]
 
-        # pricing results
-        self.option = None
-        self.price = None
-        self.variance = None
-        self.interval = None
+        # initializing random number sequences
+        self.seqEcuyerCombined = None
+        self.seqNormalBoxMuller = None
+        self.seqNormalCLT = None
 
-        # enhancements (variance reduction methods, quasi Monte-Carlo)
-        self.control_variate = None
-        self.antithetic_variable = None
-        self.quasi_MC = None
+        # initializing both schemes
+        self.euler = None
+        self.milstein = None
+
+
+    def buildEuropeanSinglePriceables(self):
+        """
+        Encompasses the overall pricing methodology for European Single call options.
+        """
+
+        pass
 
 
     def displayPricingParams(self):
@@ -52,7 +58,7 @@ class algorithm():
         Outputs the option and parameters currently ran for pricing.
         """
 
-        print("----- Pricing a " + self.method + " option -----")
+        pass
 
 
     def displayPricingResults(self):
@@ -60,92 +66,9 @@ class algorithm():
         Ouputs the option and algorithm pricing results.    
         """
 
-        print("----- Pricing results -----")
-        print("Option price : " + str(self.price))
-        print("Price variance : " + str(self.variance))
-        print("Price confidence interval : " + str(self.interval))
-
-
-    def generatingSequences(self):
-        """
-        Prepares the different random number generation algorithms.
-        """
-
-        # ecuyerCombined = ecuyerCombined()
-        # normalBoxMuller = normalBoxMuller()
-        # normalCLT = normalCLT()
-
         pass
 
-
-    def generatingTrajectories(self):
-        """
-        Builds the required diffusion algorithms. Generalized to N-dimensions.
-        """
-
-        # blackScholesEuler = blackScholesEuler()
-        # blackScholesMilstein = blackScholesMilstein()
-
-        pass
-
-    
-    def computePrice(self, option=None):
-        pass
-
-
-    def computeVariance(self, option=None):
-        pass
-
-
-    def computeIC(self, option=None):
-        pass
-
-
-    def priceEuropeanSingle(self):
-        """
-        Encompasses the overall pricing methodology for European Single call options.
-        """
-
-        self.method = "European Single Call"
-        self.displayPricingParams()
-        self.generatingSequences()
-        self.generatingTrajectories()
-
-        self.price = self.computePrice(self.option)
-        self.variance = self.computeVariance(self.option)
-        self.interval = self.computeIC(self.option)
-
-        self.displayPricingResults()
-
-        return None
-
-
-    def priceEuropeanBasket(self):
-        """
-        Encompasses the overall pricing methodology for European Basket call options.
-        """
-
-        self.method = "European Basket Call"
-        self.displayPricingParams()
-
-
-    def priceBermudanSingle(self):
-        """
-        Encompasses the overall pricing methodology for Bermudan Single call options.
-        """
-
-        self.method = "Bermudan Single Call"
-        self.displayPricingParams()
-
-
-    def priceBermudanBasket(self):
-        """
-        Encompasses the overall pricing methodology for Bermudan Baket call options.
-        """
-
-        self.method = "Bermudan Basket Call"
-        self.displayPricingParams()
 
 
 # runs the global algorithm structure
-algorithm().priceEuropeanSingle()
+algorithm().buildBermudanBasketPriceables()
