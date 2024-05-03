@@ -4,11 +4,11 @@
 
 class ContinuousGenerator : public RandomGenerator
 {
-public:
-	ContinuousGenerator();
-	ContinuousGenerator(UniformGenerator* _gen);
+	protected:
+		UniformGenerator* generator;
 
-protected:
-	UniformGenerator* generator;
+	public:
+		ContinuousGenerator();
+		ContinuousGenerator(UniformGenerator* _gen);
 };
 

@@ -2,14 +2,11 @@
 #include "RandomGenerator.h"
 #include <math.h>
 #include "VanDerCorput.h"
-#include "NormalInvCdf.h"
+#include "Normal.h"
 #include <iostream>
 
-RandomGenerator::RandomGenerator()
-{
-}
+RandomGenerator::RandomGenerator() { }
 
-//Get the mean of any random processes implemented
 double RandomGenerator::Mean(myLong nbSim)
 {
 	double result = 0.;
@@ -25,7 +22,6 @@ double RandomGenerator::Mean(myLong nbSim)
 	return result;
 }
 
-//Get the variance of any random processes implemented
 double RandomGenerator::Variance(myLong nbSim)
 {
 	double result = 0.;
@@ -40,35 +36,31 @@ double RandomGenerator::Variance(myLong nbSim)
 	return result;
 }
 
-//Generate vector with random values
 std::vector<double> RandomGenerator::GenerateVector(int dimension)
 {
 	std::vector<double> result(dimension);
 	for (int i = 0; i < dimension; i++)
-	{
 		result[i] = Generate();
-	}
+
 	return result;
 }
 
-//Generate vector with random values using Van Der Corupt Sequence
 std::vector<double> RandomGenerator::GenerateVectorVDC(int dimension, myLong sim)
 {
 	std::vector<double> result(dimension);
 	std::vector<double> prime_numbers = first_primeNumbers(dimension);
+
 	result[0] = Generate();
 	for (int i = 1; i < dimension; i++)
 	{
 		double prime_number = prime_numbers[i];
 		VanDerCorput* Vdc = new VanDerCorput(prime_number, sim + 1);
-		//std::cout << "prime_number : " << prime_number << std::endl;
-		NormalInvCdf* Normal_VDC = new NormalInvCdf(0, 1, Vdc);
-		result[i] = Normal_VDC->Generate();
+		NormalInvCdf* Normal = new NormalInvCdf(0, 1, Vdc);
+		result[i] = Normal->Generate();
 	}
 	return result;
 }
 
-//Get the N first prime numbers
 std::vector<double> first_primeNumbers(myLong N)
 {
 	std::vector<double> results;

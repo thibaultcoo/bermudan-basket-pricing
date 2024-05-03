@@ -3,12 +3,12 @@
 
 class PseudoGenerator : public UniformGenerator
 {
-public:
-	PseudoGenerator();
-	PseudoGenerator(myLong inputSeed);
+	protected:
+		myLong seed;
+		myLong currentNumber;
 
-protected:
-	myLong seed;
-	myLong currentNumber;
+	public:
+		PseudoGenerator();
+		PseudoGenerator(myLong inputSeed);
 };
 

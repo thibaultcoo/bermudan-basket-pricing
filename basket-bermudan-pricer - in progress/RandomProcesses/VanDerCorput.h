@@ -1,18 +1,15 @@
 #pragma once
 #include "QuasiGenerator.h"
 
-//Van Der Corput sequence generation
-
 class VanDerCorput : public QuasiGenerator
 {
-public:
-	VanDerCorput(int _base = 2, myLong _currentNumber = 1);
-	virtual double Generate();
+	protected:
+		int base;
 
-
-private:
-	int base;
-
+	public:
+		VanDerCorput(int _base = 2, myLong _currentNumber = 1);
+		virtual double Generate();
 };
 
-std::vector<int> IntToInversePAdicExpansion(int n, int base);
+// Helper function
+std::vector<int> InversePAdicExpansion(int n, int base);
