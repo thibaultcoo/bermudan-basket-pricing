@@ -45,8 +45,3 @@ double compute_expected_value_control_variate(std::vector<double> spots, std::ve
 
 	return BS_Call(spotProduct, strike, volAdjusted, maturity, adjustedRate);
 }
-
-double fp(double x, double p)
-{
-	return pow(x, p);
-}
