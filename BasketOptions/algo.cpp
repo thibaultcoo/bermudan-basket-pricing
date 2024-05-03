@@ -30,7 +30,7 @@ int main() {
     BermudanBasket* BermudanMilsteinQuasiMC = new BermudanBasket(inst.getMilsteinQuasiMC(), inst.getStrike(), inst.getRates(), inst.getMatu(), inst.getWeights(), inst.getBermudans(), inst.getSpots(), inst.getVariances());
 
     // below is the pricing and direct output of the values (we will split the pricing/displaying and aggregate the displaying nicely by introducing result objects)
-    std::cout << "Price European Basket Call Euler simple : " << EuropeanEuler->price(inst.getNbPaths()) << std::endl;
+    std::cout << "Price European Basket Call Euler simple : " << EuropeanEuler->priceAntithetic(inst.getNbPaths()) << std::endl;
     std::cout << " - Variance : " << EuropeanEuler->variance() << std::endl;
     std::cout << " - IC : [" << EuropeanEuler->confidenceInterval()[0] << ", ";
     std::cout << EuropeanEuler->confidenceInterval()[1] << "]" << std::endl;
@@ -42,7 +42,7 @@ int main() {
     std::cout << EuropeanMilstein->confidenceInterval()[1] << "]" << std::endl;
     std::cout << "\n" << std::endl;
 
-    std::cout << "Price Bermudan Basket Call Euler simple : " << BermudanEuler->price(inst.getNbPaths()) << std::endl;
+    std::cout << "Price Bermudan Basket Call Euler simple : " << BermudanEuler->priceControlVariate(inst.getNbPaths()) << std::endl;
     std::cout << " - Variance : " << BermudanEuler->variance() << std::endl;
     std::cout << " - IC : [" << BermudanEuler->confidenceInterval()[0] << ", ";
     std::cout << BermudanEuler->confidenceInterval()[1] << "]" << std::endl;
