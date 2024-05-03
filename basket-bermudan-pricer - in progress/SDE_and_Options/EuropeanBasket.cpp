@@ -18,7 +18,7 @@ double EuropeanBasket::price(int nbSim)
 	for (int n = 0; n < nbSim; ++n)
 	{
 		process->Simulate(0, maturity, maturity * 365);
-		std::vector<double> final_spots = process->Get_ValueND(maturity);
+		std::vector<double> final_spots = process->getValueMulti(maturity);
 		double weighted_spots = std::inner_product(std::begin(weights), std::end(weights), std::begin(final_spots), 0.0);
 		double path_price = std::max(weighted_spots - strike, 0.);
 		sum += path_price;
@@ -39,9 +39,9 @@ double EuropeanBasket::priceAntithetic(int nbSim)
 
 	for (int n = 0; n < nbSim; ++n)
 	{
-		process->Simulate_Antithetic(0, maturity, maturity * 365);
-		std::vector<double> final_spots = process->Get_ValueND(maturity);
-		std::vector<double> final_spots_anti = process->Get_ValueND_antithetic(maturity);
+		process->SimulateAntithetic(0, maturity, maturity * 365);
+		std::vector<double> final_spots = process->getValueMulti(maturity);
+		std::vector<double> final_spots_anti = process->getValueAntitheticMulti(maturity);
 		double weighted_spots = std::inner_product(std::begin(weights), std::end(weights), std::begin(final_spots), 0.0);
 		double weighted_spots_anti = std::inner_product(std::begin(weights), std::end(weights), std::begin(final_spots_anti), 0.0);
 		double path_price = std::max(weighted_spots - strike, 0.);
@@ -67,7 +67,7 @@ double EuropeanBasket::priceControlVariate(int nbSim)
 	for (int n = 0; n < nbSim; ++n)
 	{
 		process->Simulate(0, maturity, maturity * 365);
-		std::vector<double> final_spots = process->Get_ValueND(maturity);
+		std::vector<double> final_spots = process->getValueMulti(maturity);
 		std::vector<double> log_spots(spots.size());
 		for (int j = 0; j < spots.size(); j++)
 			log_spots[j] = log(final_spots[j]);
@@ -97,8 +97,8 @@ double EuropeanBasket::priceQuasiMC(int nbSim)
 
 	for (int n = 0; n < nbSim; ++n)
 	{
-		process->Simulate_VDC(0, maturity, maturity * 365, n, nbSim);
-		std::vector<double> final_spots = process->Get_ValueND(maturity);
+		process->SimulateQuasiMC(0, maturity, maturity * 365, n, nbSim);
+		std::vector<double> final_spots = process->getValueMulti(maturity);
 		double weighted_spots = std::inner_product(std::begin(weights), std::end(weights), std::begin(final_spots), 0.0);
 		double path_price = std::max(weighted_spots - strike, 0.);
 		sum += path_price;

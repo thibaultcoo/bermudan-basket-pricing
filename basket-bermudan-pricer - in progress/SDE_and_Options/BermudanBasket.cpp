@@ -28,7 +28,7 @@ double BermudanBasket::price(int nbSim)
 
 		for (int dateIndex = 0; dateIndex < numExerciseDates; dateIndex++)
 		{
-			std::vector<double> spotPrices = process->Get_ValueND(exerciseDates[dateIndex]);
+			std::vector<double> spotPrices = process->getValueMulti(exerciseDates[dateIndex]);
 			Eigen::VectorXd spotPricesVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(spotPrices.data(), spotPrices.size());
 			basketValues(simIndex, dateIndex) = basketWeightsVector.transpose() * spotPricesVector;
 		}
@@ -71,15 +71,15 @@ double BermudanBasket::priceAntithetic(int numSimulations)
 	{
 		exerciseTimesRegular(simIndex, numExerciseDates - 1) = maturity;
 		exerciseTimesAntithetic(simIndex, numExerciseDates - 1) = maturity;
-		process->Simulate_Antithetic(0, maturity, maturity * 365);
+		process->SimulateAntithetic(0, maturity, maturity * 365);
 
 		for (int dateIndex = 0; dateIndex < numExerciseDates; dateIndex++)
 		{
-			std::vector<double> spotPricesRegular = process->Get_ValueND(exerciseDates[dateIndex]);
+			std::vector<double> spotPricesRegular = process->getValueMulti(exerciseDates[dateIndex]);
 			Eigen::VectorXd spotPricesVectorRegular = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(spotPricesRegular.data(), spotPricesRegular.size());
 			basketValuesRegular(simIndex, dateIndex) = basketWeightsVector.transpose() * spotPricesVectorRegular;
 
-			std::vector<double> spotPricesAntithetic = process->Get_ValueND_antithetic(exerciseDates[dateIndex]);
+			std::vector<double> spotPricesAntithetic = process->getValueAntitheticMulti(exerciseDates[dateIndex]);
 			Eigen::VectorXd spotPricesVectorAntithetic = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(spotPricesAntithetic.data(), spotPricesAntithetic.size());
 			basketValuesAntithetic(simIndex, dateIndex) = basketWeightsVector.transpose() * spotPricesVectorAntithetic;
 		}
@@ -126,7 +126,7 @@ double BermudanBasket::priceControlVariate(int numSimulations)
 
 		for (int dateIndex = 0; dateIndex < numExerciseDates; dateIndex++)
 		{
-			std::vector<double> spotPrices = process->Get_ValueND(exerciseDates[dateIndex]);
+			std::vector<double> spotPrices = process->getValueMulti(exerciseDates[dateIndex]);
 			std::vector<double> logSpotPrices(spotPrices.size());
 			std::transform(spotPrices.begin(), spotPrices.end(), logSpotPrices.begin(), [](double price) { return log(price); });
 
@@ -211,11 +211,11 @@ double BermudanBasket::priceQuasiMC(int numSimulations)
 	for (int simIndex = 0; simIndex < numSimulations; ++simIndex)
 	{
 		exerciseTimes(simIndex, numExerciseDates - 1) = maturity;
-		process->Simulate_VDC(0, maturity, maturity * 365, simIndex, numSimulations);
+		process->SimulateQuasiMC(0, maturity, maturity * 365, simIndex, numSimulations);
 
 		for (int dateIndex = 0; dateIndex < numExerciseDates; dateIndex++)
 		{
-			std::vector<double> spotPrices = process->Get_ValueND(exerciseDates[dateIndex]);
+			std::vector<double> spotPrices = process->getValueMulti(exerciseDates[dateIndex]);
 			Eigen::VectorXd spotPricesVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(spotPrices.data(), spotPrices.size());
 			basketValues(simIndex, dateIndex) = basketWeightsVector.transpose() * spotPricesVector;
 		}

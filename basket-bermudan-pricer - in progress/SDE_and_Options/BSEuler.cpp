@@ -37,8 +37,8 @@ void BSEuler::Simulate(double start_time, double end_time, size_t nb_steps)
 
     for (int i = 0; i < dim; i++)
     {
-        paths[i] = new SinglePath(start_time, end_time, nb_steps);
-        paths[i]->AddValue(last[i]);
+        trajectory[i] = new SingleTrajectory(start_time, end_time, nb_steps);
+        trajectory[i]->AddValue(last[i]);
     }
 
     for (int i = 0; i < nb_steps; i++)
@@ -55,24 +55,24 @@ void BSEuler::Simulate(double start_time, double end_time, size_t nb_steps)
         last = next;
         for (int j = 0; j < dim; j++)
         {
-            paths[j]->AddValue(last[j]);
+            trajectory[j]->AddValue(last[j]);
         }
 
     }
 }
 
-void BSEuler::Simulate_Antithetic(double start_time, double end_time, size_t nb_steps)
+void BSEuler::SimulateAntithetic(double start_time, double end_time, size_t nb_steps)
 {
     double dt = (end_time - start_time) / nb_steps;
     Eigen::VectorXd last = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(s.data(), s.size());
     Eigen::VectorXd last_anti = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(s.data(), s.size());
     for (int i = 0; i < dim; i++)
     {
-        paths[i] = new SinglePath(start_time, end_time, nb_steps);
-        paths[i]->AddValue(last[i]);
+        trajectory[i] = new SingleTrajectory(start_time, end_time, nb_steps);
+        trajectory[i]->AddValue(last[i]);
 
-        paths_antithetic[i] = new SinglePath(start_time, end_time, nb_steps);
-        paths_antithetic[i]->AddValue(last_anti[i]);
+        trajectoryAntithetic[i] = new SingleTrajectory(start_time, end_time, nb_steps);
+        trajectoryAntithetic[i]->AddValue(last_anti[i]);
     }
 
     for (int i = 0; i < nb_steps; i++)
@@ -95,14 +95,14 @@ void BSEuler::Simulate_Antithetic(double start_time, double end_time, size_t nb_
 
         for (int j = 0; j < dim; j++)
         {
-            paths[j]->AddValue(last[j]);
-            paths_antithetic[j]->AddValue(last_anti[j]);
+            trajectory[j]->AddValue(last[j]);
+            trajectoryAntithetic[j]->AddValue(last_anti[j]);
         }
 
     }
 }
 
-void BSEuler::Simulate_VDC(double start_time, double end_time, size_t nb_steps, myLong sim, myLong nbSim)
+void BSEuler::SimulateQuasiMC(double start_time, double end_time, size_t nb_steps, myLong sim, myLong nbSim)
 {
     double dt = (end_time - start_time) / nb_steps;
     Eigen::VectorXd last = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(s.data(), s.size());
@@ -125,8 +125,8 @@ void BSEuler::Simulate_VDC(double start_time, double end_time, size_t nb_steps, 
 
     for (int i = 0; i < dim; i++)
     {
-        paths[i] = new SinglePath(start_time, end_time, nb_steps);
-        paths[i]->AddValue(last[i]);
+        trajectory[i] = new SingleTrajectory(start_time, end_time, nb_steps);
+        trajectory[i]->AddValue(last[i]);
     }
     Eigen::VectorXd dW_M = M_VDC.row(sim) * pow(dt, 0.5);
     std::vector<double> M = r * dt;
@@ -138,7 +138,7 @@ void BSEuler::Simulate_VDC(double start_time, double end_time, size_t nb_steps, 
 
     for (int j = 0; j < dim; j++)
     {
-        paths[j]->AddValue(last[j]);
+        trajectory[j]->AddValue(last[j]);
     }
 
 
@@ -159,7 +159,7 @@ void BSEuler::Simulate_VDC(double start_time, double end_time, size_t nb_steps, 
         last = next;
         for (int j = 0; j < dim; j++)
         {
-            paths[j]->AddValue(last[j]);
+            trajectory[j]->AddValue(last[j]);
         }
 
     }

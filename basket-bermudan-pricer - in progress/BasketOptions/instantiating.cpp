@@ -11,10 +11,7 @@
 #include <eigen-3.4.0/Eigen/Dense>
 
 // Instance object constructor
-Instance::Instance()
-{
-    // Constructor body left empty since constants are initialized later within several functions.
-}
+Instance::Instance() {}
 
 void Instance::fillWithParameters()
 {

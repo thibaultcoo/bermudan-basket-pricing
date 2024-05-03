@@ -6,7 +6,7 @@
 #include "displaying.h"
 #include <eigen-3.4.0/Eigen/Dense>
 
-int main() 
+int main()
 {
 
     // Creating an instance of the complete algorithm.

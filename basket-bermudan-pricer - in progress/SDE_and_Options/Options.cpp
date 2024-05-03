@@ -1,7 +1,8 @@
 #include "pch.h"
-#include < algorithm >
-#include <numeric>
 #include "Options.h"
+#include <algorithm>
+#include <numeric>
+#include <cmath>
 
 // Default Constructor
 Options::Options() { }
@@ -36,9 +37,6 @@ double Options::variance()
 // Compute the Confidence Interval for the mean of the simulated prices
 std::vector<double> Options::confidenceInterval(double alpha)
 {
-	if (alpha != 0.95 && alpha != 0.99)
-		throw std::invalid_argument("Alpha should be 0.95 or 0.99");
-
 	double z = (alpha == 0.99) ? 2.576 : 1.96;
 	double mean_value = mean();
 	double variance_value = variance();

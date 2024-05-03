@@ -1,60 +1,53 @@
 #include "pch.h"
 #include "StochasticProcess.h"
 #include <vector>
-#include "SinglePath.h"
+#include "SingleTrajectory.h"
 
-StochasticProcess::StochasticProcess()
-{
-}
+StochasticProcess::StochasticProcess() {}
 
 StochasticProcess::StochasticProcess(RandomGenerator* _gen, int _dim)
-	:gen(_gen), dim(_dim), paths(_dim, new SinglePath()), paths_antithetic(_dim, new SinglePath())
-{
+	: gen(_gen), dim(_dim) {
+	trajectory.resize(_dim);
+	trajectoryAntithetic.resize(_dim);
+	for (int i = 0; i < _dim; ++i) {
+		trajectory[i] = new SingleTrajectory();
+		trajectoryAntithetic[i] = new SingleTrajectory();
+	}
 }
 
-void StochasticProcess::add_path(SinglePath* Path)
-{
-	paths.push_back(Path);
+void StochasticProcess::addTrajectory(SingleTrajectory* Path) {
+	trajectory.push_back(Path);
 }
 
-SinglePath* StochasticProcess::GetPath(int dimension)
-{
-	return paths[0];
+SingleTrajectory* StochasticProcess::getTrajectory(int dimension) {
+	return trajectory[0];
 }
 
-const double StochasticProcess::Get_Value(double time, int dim)
-{
-	return paths[dim]->GetValue(time);
+const double StochasticProcess::getValue(double time, int dim) {
+	return trajectory[dim]->GetValue(time);
 }
 
-const double StochasticProcess::Get_Value_antithetic(double time, int dim)
-{
-	return paths_antithetic[dim]->GetValue(time);
+const double StochasticProcess::getValueAntithetic(double time, int dim) {
+	return trajectoryAntithetic[dim]->GetValue(time);
 }
 
 
-const std::vector<double> StochasticProcess::Get_ValueND(double time)
-{
-	int d = dim;
+const std::vector<double> StochasticProcess::getValueMulti(double time) {
+	std::vector<double> res;
+	res.reserve(dim);
 
-	std::vector<double> res(d);
-	for (int i = 0; i < d; i++)
-	{
-		res[i] = Get_Value(time, i);
+	for (int i = 0; i < dim; i++) {
+		res.push_back(getValue(time, i));
 	}
 	return res;
 }
 
-const std::vector<double> StochasticProcess::Get_ValueND_antithetic(double time)
-{
-	int d = dim;
+const std::vector<double> StochasticProcess::getValueAntitheticMulti(double time) {
+	std::vector<double> res;
+	res.reserve(dim);
 
-	std::vector<double> res(d);
-	for (int i = 0; i < d; i++)
-	{
-		res[i] = Get_Value_antithetic(time, i);
+	for (int i = 0; i < dim; i++) {
+		res.push_back(getValueAntithetic(time, i));
 	}
 	return res;
 }
-
-

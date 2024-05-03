@@ -37,8 +37,8 @@ void BSMilstein::Simulate(double start_time, double end_time, size_t nb_steps)
 
     for (int i = 0; i < dim; i++)
     {
-        paths[i] = new SinglePath(start_time, end_time, nb_steps);
-        paths[i]->AddValue(last[i]);
+        trajectory[i] = new SingleTrajectory(start_time, end_time, nb_steps);
+        trajectory[i]->AddValue(last[i]);
     }
 
 
@@ -62,13 +62,13 @@ void BSMilstein::Simulate(double start_time, double end_time, size_t nb_steps)
 
         for (int j = 0; j < dim; j++)
         {
-            paths[j]->AddValue(last[j]);
+            trajectory[j]->AddValue(last[j]);
         }
 
     }
 }
 
-void BSMilstein::Simulate_Antithetic(double start_time, double end_time, size_t nb_steps)
+void BSMilstein::SimulateAntithetic(double start_time, double end_time, size_t nb_steps)
 {
     double dt = (end_time - start_time) / nb_steps;
     Eigen::VectorXd last = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(s.data(), s.size());
@@ -76,11 +76,11 @@ void BSMilstein::Simulate_Antithetic(double start_time, double end_time, size_t 
 
     for (int i = 0; i < dim; i++)
     {
-        paths[i] = new SinglePath(start_time, end_time, nb_steps);
-        paths[i]->AddValue(last[i]);
+        trajectory[i] = new SingleTrajectory(start_time, end_time, nb_steps);
+        trajectory[i]->AddValue(last[i]);
 
-        paths_antithetic[i] = new SinglePath(start_time, end_time, nb_steps);
-        paths_antithetic[i]->AddValue(last_anti[i]);
+        trajectoryAntithetic[i] = new SingleTrajectory(start_time, end_time, nb_steps);
+        trajectoryAntithetic[i]->AddValue(last_anti[i]);
     }
 
     for (int i = 0; i < nb_steps; i++)
@@ -109,14 +109,14 @@ void BSMilstein::Simulate_Antithetic(double start_time, double end_time, size_t 
 
         for (int j = 0; j < dim; j++)
         {
-            paths[j]->AddValue(last[j]);
-            paths_antithetic[j]->AddValue(last_anti[j]);
+            trajectory[j]->AddValue(last[j]);
+            trajectoryAntithetic[j]->AddValue(last_anti[j]);
         }
 
     }
 }
 
-void BSMilstein::Simulate_VDC(double start_time, double end_time, size_t nb_steps, myLong sim, myLong nbSim)
+void BSMilstein::SimulateQuasiMC(double start_time, double end_time, size_t nb_steps, myLong sim, myLong nbSim)
 {
     double dt = (end_time - start_time) / nb_steps;
     Eigen::VectorXd last = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(s.data(), s.size());
@@ -139,8 +139,8 @@ void BSMilstein::Simulate_VDC(double start_time, double end_time, size_t nb_step
 
     for (int i = 0; i < dim; i++)
     {
-        paths[i] = new SinglePath(start_time, end_time, nb_steps);
-        paths[i]->AddValue(last[i]);
+        trajectory[i] = new SingleTrajectory(start_time, end_time, nb_steps);
+        trajectory[i]->AddValue(last[i]);
     }
 
     Eigen::VectorXd dW_M = M_VDC.row(sim) * pow(dt, 0.5);
@@ -160,7 +160,7 @@ void BSMilstein::Simulate_VDC(double start_time, double end_time, size_t nb_step
 
     for (int j = 0; j < dim; j++)
     {
-        paths[j]->AddValue(last[j]);
+        trajectory[j]->AddValue(last[j]);
     }
 
     for (int i = 0; i < nb_steps; i++)
@@ -189,7 +189,7 @@ void BSMilstein::Simulate_VDC(double start_time, double end_time, size_t nb_step
 
         for (int j = 0; j < dim; j++)
         {
-            paths[j]->AddValue(last[j]);
+            trajectory[j]->AddValue(last[j]);
         }
 
     }
