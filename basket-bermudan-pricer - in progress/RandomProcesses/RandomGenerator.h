@@ -5,19 +5,16 @@ typedef unsigned long long myLong;
 
 class RandomGenerator
 {
-	public:
-		// Constructor
-		RandomGenerator();
+public:
+	RandomGenerator();
+	virtual double Generate() = 0;
+	std::vector<double> GenerateVector(int dimension);
+	std::vector<double> GenerateVectorVDC(int dimension, myLong sim);
+	double Mean(myLong nbSim);
+	double Variance(myLong nbSim);
 
-		// Methods
-		virtual double Generate() = 0;
-		std::vector<double> GenerateVector(int dimension);
-		std::vector<double> GenerateVectorVDC(int dimension, myLong sim);
-		double Mean(myLong nbSim);
-		double Variance(myLong nbSim);
-
-		// Members
-		std::vector <double> lastGeneratedNumbers;
+	std::vector <double> lastGeneratedNumbers;
 };
 
 std::vector<double> first_primeNumbers(myLong N);
+

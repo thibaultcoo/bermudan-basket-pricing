@@ -1,4 +1,3 @@
-#include <iostream>
 #include "EuropeanBasket.h"
 #include "BermudanBasket.h"
 #include "instantiating.h"
@@ -6,9 +5,13 @@
 #include "displaying.h"
 #include <eigen-3.4.0/Eigen/Dense>
 
+/*
+Pricing of bermudan basket options - M203 Numerical finance project
+Marchessaux François, Louis Faverjon, Collin Thibault
+*/
+
 int main()
 {
-
     // Creating an instance of the complete algorithm.
     Instance Inst;
 
@@ -37,7 +40,7 @@ int main()
     Priceable* Euler = new Priceable(Inst, EuropeanEuler, BermudanEuler, "Basket Call Euler", false);
     Priceable* Milstein = new Priceable(Inst, EuropeanMilstein, BermudanMilstein, "Basket Call Milstein", false);
     Priceable* EulerQuasiMC = new Priceable(Inst, EuropeanEulerQuasiMC, BermudanEulerQuasiMC, "Basket Call Euler with Quasi Monte-Carlo", true);
-    Priceable* MilsteinQuasiMC = new Priceable(Inst, EuropeanMilsteinQuasiMC, BermudanMilsteinQuasiMC, "Basket Call Milstein with Quasi Monte-Carlo", false);
+    Priceable* MilsteinQuasiMC = new Priceable(Inst, EuropeanMilsteinQuasiMC, BermudanMilsteinQuasiMC, "Basket Call Milstein with Quasi Monte-Carlo", true);
 
     // Initializing the clean displaying outputer.
     Display* EulerRes = new Display(Euler);

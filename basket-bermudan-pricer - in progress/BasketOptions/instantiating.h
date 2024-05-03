@@ -4,7 +4,9 @@
 #include "LinearCongruential.h"
 #include "VanDerCorput.h"
 #include "EcuyerCombined.h"
-#include "Normal.h"
+#include "NormalBoxMuller.h"
+#include "NormalCLT.h"
+#include "NormalInvCdf.h"
 #include "BSEuler.h"
 #include "BSMilstein.h"
 #include <eigen-3.4.0/Eigen/Dense>

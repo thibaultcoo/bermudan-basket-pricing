@@ -78,7 +78,6 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\Francois\Downloads\Eigen;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\RandomProcesses;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\BasketOptions</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -96,7 +95,6 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\Francois\Downloads\Eigen;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\RandomProcesses;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\BasketOptions</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -114,7 +112,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\Francois\Downloads\Eigen;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\RandomProcesses;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\BasketOptions</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Eigen;$(SolutionDir)BasketOptions;$(SolutionDir)RandomProcess;C:\Users\thiba\OneDrive\Bureau\basket-bermudan-pricer\RandomProcesses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -132,7 +130,6 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\Francois\Downloads\Eigen;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\RandomProcesses;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\BasketOptions</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -148,7 +145,6 @@
     <ClInclude Include="BSEuler.h" />
     <ClInclude Include="BSMilstein.h" />
     <ClInclude Include="EuropeanBasket.h" />
-    <ClInclude Include="framework.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SingleTrajectory.h" />

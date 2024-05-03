@@ -2,10 +2,17 @@
 #include "LinearCongruential.h"
 #include "iostream"
 
-LinearCongruential::LinearCongruential() : PseudoGenerator() { }
+LinearCongruential::LinearCongruential()
+	: PseudoGenerator()
+{
+}
 
 
-LinearCongruential::LinearCongruential(myLong _seed, myLong _multiplier, myLong _increment, myLong _modulus) : PseudoGenerator(_seed), Multiplier(_multiplier), Increment(_increment), Modulus(_modulus) { }
+LinearCongruential::LinearCongruential(myLong _seed, myLong _multiplier, myLong _increment, myLong _modulus)
+	: PseudoGenerator(_seed), Multiplier(_multiplier), Increment(_increment), Modulus(_modulus)
+{
+
+}
 
 double LinearCongruential::Generate()
 {
@@ -13,4 +20,7 @@ double LinearCongruential::Generate()
 	return (double)currentNumber / Modulus;
 }
 
-myLong LinearCongruential::get_Modulus() { return Modulus; }
+myLong LinearCongruential::get_Modulus()
+{
+	return Modulus;
+}

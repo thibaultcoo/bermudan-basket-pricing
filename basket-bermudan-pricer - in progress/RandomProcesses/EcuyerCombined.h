@@ -2,15 +2,17 @@
 #include "PseudoGenerator.h"
 #include "LinearCongruential.h"
 
+// Ecuyer Combined sequence generator
 
 class EcuyerCombined : public PseudoGenerator
 {
-	protected:
-		LinearCongruential Generator1;
-		LinearCongruential Generator2;
+public:
+	EcuyerCombined();
+	virtual double Generate();
 
-	public:
-		EcuyerCombined();
-		double Generate();
+
+private:
+	LinearCongruential Generator1;
+	LinearCongruential Generator2;
 };
 

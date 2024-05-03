@@ -79,7 +79,6 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\SDE_and_Options;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\BasketOptions</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -97,7 +96,6 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\SDE_and_Options;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\BasketOptions</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -115,7 +113,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\SDE_and_Options;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\BasketOptions</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Eigen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -133,7 +131,6 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\SDE_and_Options;C:\Users\Francois\Desktop\basket-bermudan-pricer - in progress\BasketOptions</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -144,12 +141,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Bernoulli.h" />
+    <ClInclude Include="Binomial.h" />
     <ClInclude Include="ContinuousGenerator.h" />
+    <ClInclude Include="DiscreteGenerator.h" />
     <ClInclude Include="EcuyerCombined.h" />
+    <ClInclude Include="Exponential.h" />
+    <ClInclude Include="ExponentialInvCdf.h" />
+    <ClInclude Include="FiniteSet.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="HeadTail.h" />
     <ClInclude Include="LinearCongruential.h" />
+    <ClInclude Include="Niederreiter.h" />
     <ClInclude Include="Normal.h" />
+    <ClInclude Include="NormalBoxMuller.h" />
+    <ClInclude Include="NormalCLT.h" />
+    <ClInclude Include="NormalInvCdf.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Poisson.h" />
+    <ClInclude Include="PoissonAlgo1.h" />
+    <ClInclude Include="PoissonAlgo2.h" />
     <ClInclude Include="PseudoGenerator.h" />
     <ClInclude Include="QuasiGenerator.h" />
     <ClInclude Include="RandomGenerator.h" />
@@ -157,21 +168,38 @@
     <ClInclude Include="VanDerCorput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Bernoulli.cpp" />
+    <ClCompile Include="Binomial.cpp" />
     <ClCompile Include="ContinuousGenerator.cpp" />
+    <ClCompile Include="DiscreteGenerator.cpp" />
     <ClCompile Include="EcuyerCombined.cpp" />
+    <ClCompile Include="Exponential.cpp" />
+    <ClCompile Include="ExponentialInvCdf.cpp" />
+    <ClCompile Include="FiniteSet.cpp" />
+    <ClCompile Include="HeadTail.cpp" />
     <ClCompile Include="LinearCongruential.cpp" />
+    <ClCompile Include="Niederreiter.cpp" />
     <ClCompile Include="Normal.cpp" />
+    <ClCompile Include="NormalBoxMuller.cpp" />
+    <ClCompile Include="NormalCLT.cpp" />
+    <ClCompile Include="NormalInvCdf.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Poisson.cpp" />
+    <ClCompile Include="PoissonAlgo1.cpp" />
+    <ClCompile Include="PoissonAlgo2.cpp" />
     <ClCompile Include="PseudoGenerator.cpp" />
     <ClCompile Include="QuasiGenerator.cpp" />
     <ClCompile Include="RandomGenerator.cpp" />
     <ClCompile Include="UniformGenerator.cpp" />
     <ClCompile Include="VanDerCorput.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
