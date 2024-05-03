@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Bernoulli" Collapsed="true">
+    <Position X="16.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAEAAAAA=</HashCode>
+      <FileName>Bernoulli.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Binomial" Collapsed="true">
+    <Position X="23" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAEEAAAEAAAAA=</HashCode>
+      <FileName>Binomial.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ContinuousGenerator" Collapsed="true">
+    <Position X="4" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>ContinuousGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DiscreteGenerator" Collapsed="true">
+    <Position X="22" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DiscreteGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EcuyerCombined" Collapsed="true">
+    <Position X="9.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAABgAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>EcuyerCombined.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Exponential" Collapsed="true">
+    <Position X="0.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exponential.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExponentialInvCdf" Collapsed="true">
+    <Position X="0.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>ExponentialInvCdf.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FiniteSet" Collapsed="true">
+    <Position X="25.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAAAAAAAAAAACAAAAAAACAAAAAAAEAAAAA=</HashCode>
+      <FileName>FiniteSet.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HeadTail" Collapsed="true">
+    <Position X="27.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>HeadTail.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LinearCongruential" Collapsed="true">
+    <Position X="11.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAKAAAAAAIAAAAABQAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>LinearCongruential.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Niederreiter" Collapsed="true">
+    <Position X="30" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Niederreiter.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Normal" Collapsed="true">
+    <Position X="5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAAAAAAAQIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Normal.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NormalBoxMuller" Collapsed="true">
+    <Position X="2.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAAgAAAAAAAAAAAAAAAAAAAIAAEAAAAA=</HashCode>
+      <FileName>NormalBoxMuller.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NormalCLT" Collapsed="true">
+    <Position X="5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>NormalCLT.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NormalInvCdf" Collapsed="true">
+    <Position X="7.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>NormalInvCdf.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Poisson" Collapsed="true">
+    <Position X="19.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Poisson.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PoissonAlgo1" Collapsed="true">
+    <Position X="18.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEQAAAA=</HashCode>
+      <FileName>PoissonAlgo1.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PoissonAlgo2" Collapsed="true">
+    <Position X="20.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEQAAAA=</HashCode>
+      <FileName>PoissonAlgo2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PseudoGenerator" Collapsed="true">
+    <Position X="10.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAQAAAAAAAAAAAAAAAAAAEAAAAAAAA=</HashCode>
+      <FileName>PseudoGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QuasiGenerator" Collapsed="true">
+    <Position X="14" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>QuasiGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RandomGenerator" Collapsed="true">
+    <Position X="14" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQBAABgAAAAAAAAAAAAAAAAAEgAAAAEAAAAA=</HashCode>
+      <FileName>RandomGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UniformGenerator" Collapsed="true">
+    <Position X="11.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>UniformGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VanDerCorput" Collapsed="true">
+    <Position X="14" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>VanDerCorput.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Typedef Name="myLong" Collapsed="true">
+    <Position X="30" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RandomGenerator.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
