@@ -19,7 +19,7 @@ public:
     void fillWithGenerators();
     void fillWithSchemes();
 
-    // Getter methods for member variables and objectss
+    // Getter methods for member variables and objects
     const std::vector<double>& getBermudans() const { return i_bermudans; }
     const std::vector<double>& getSpots() const { return i_spots; }
     const std::vector<double>& getRates() const { return i_rates; }

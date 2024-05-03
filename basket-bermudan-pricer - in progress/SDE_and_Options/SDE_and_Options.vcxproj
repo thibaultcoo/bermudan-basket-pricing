@@ -112,7 +112,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Eigen;$(SolutionDir)BasketOptions;$(SolutionDir)RandomProcess;C:\Users\thiba\OneDrive\Bureau\basket-bermudan-pricer\RandomProcesses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\thiba\OneDrive\Bureau\basket-bermudan-pricer - in progress\RandomProcesses;C:\Users\thiba\OneDrive\Bureau\basket-bermudan-pricer - in progress\Eigen;C:\Users\thiba\OneDrive\Bureau\basket-bermudan-pricer - in progress\BasketOptions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>

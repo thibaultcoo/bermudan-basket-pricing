@@ -9,7 +9,7 @@
 
 class Priceable {
 public:
-    // Constructor that initializes the Priceable object.
+    // Constructor that initializes the Priceable object
     Priceable(Instance inst, EuropeanBasket* EuropeanOption, BermudanBasket* BermudanOption, std::string optionFeaturesName, bool quasiMC);
 
     // Getter methods for prices
