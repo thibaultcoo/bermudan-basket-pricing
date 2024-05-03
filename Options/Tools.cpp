@@ -1,58 +1,48 @@
 #include "Tools.h"
+#include <cmath>
+#include <stdexcept>
 
+// Compute the cumulative distribution function for a standard normal distribution
 double norm_cdf(double x)
 {
 	return 0.5 * std::erfc(-x / std::sqrt(2));
 }
 
+// Function to calculate a call option price using Black-Scholes closed formula
 double BS_Call(double spot, double strike, double volatility, double maturity, double rate)
 {
 	double sigma = volatility * std::sqrt(maturity);
 	double d1 = (std::log(spot / strike) + (rate + 0.5 * pow(volatility, 2)) * maturity) / sigma;
 	double d2 = d1 - sigma;
 
-	double price = spot * norm_cdf(d1) - strike * std::exp(-rate * maturity) * norm_cdf(d2);
-
-	return price;
+	return spot * norm_cdf(d1) - strike * std::exp(-rate * maturity) * norm_cdf(d2);;
 }
 
-double compute_expected_value_control_variate(std::vector<double> S, std::vector<double> weights, double K, double r, Eigen::MatrixXd VarCovar, double T)
+// Function to compute the expected value using the control variate method
+double compute_expected_value_control_variate(std::vector<double> spots, std::vector<double> weights, double strike, double rate, Eigen::MatrixXd corrMatrix, double maturity) 
 {
+	Eigen::VectorXd weightsVec = Eigen::Map<Eigen::VectorXd>(weights.data(), weights.size());
+	Eigen::MatrixXd choleskyDecomp;
 
-	double S_Y = 1;
-	double R_Y;
-	double vol_Y;
-
-	Eigen::VectorXd weights_M = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(weights.data(), weights.size());
-	Eigen::MatrixXd B;
-
-	Eigen::EigenSolver<Eigen::MatrixXd> es(VarCovar);
-
-	if (VarCovar.determinant() == 0)
+	// Check if the matrix is singular
+	if (corrMatrix.determinant() == 0) 
 	{
-		Eigen::MatrixXd D = es.pseudoEigenvalueMatrix();
-		Eigen::MatrixXd P = es.pseudoEigenvectors();
-		B = P * D;
+		Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(corrMatrix);
+		choleskyDecomp = es.eigenvectors() * es.eigenvalues().cwiseMax(0).cwiseSqrt().asDiagonal();
 	}
-	else
+	else 
 	{
-		B = VarCovar.llt().matrixL();
+		// Cholesky decomposition for non-singular matrices
+		choleskyDecomp = corrMatrix.llt().matrixL();
 	}
 
-	for (int i = 0; i < S.size(); i++)
-	{
-		S_Y *= pow(S[i], weights[i]);
-	}
+	double spotProduct = 1.0;
+	for (size_t i = 0; i < spots.size(); ++i)
+		spotProduct *= std::pow(spots[i], weights[i]);
 
-	Eigen::MatrixXd sigma2 = B * B;
-	Eigen::VectorXd sigmai = sigma2.colwise().sum();
-	double R1 = 0.5 * weights_M.transpose() * sigmai;
-	double R2 = 0.5 * weights_M.transpose() * B * B.transpose() * weights_M;
-	R_Y = r - R1 + R2;
+	Eigen::VectorXd variances = (choleskyDecomp * choleskyDecomp.transpose()).colwise().sum();
+	double adjustedRate = rate - 0.5 * weightsVec.dot(variances) + 0.5 * weightsVec.transpose() * choleskyDecomp * choleskyDecomp.transpose() * weightsVec;
+	double volAdjusted = std::sqrt(weightsVec.transpose() * choleskyDecomp * choleskyDecomp.transpose() * weightsVec);
 
-	vol_Y = pow(weights_M.transpose() * B * B.transpose() * weights_M, 0.5);
-
-	double price = BS_Call(S_Y, K, vol_Y, T, R_Y);
-
-	return price;
+	return BS_Call(spotProduct, strike, volAdjusted, maturity, adjustedRate);
 }

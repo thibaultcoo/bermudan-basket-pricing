@@ -1,414 +1,296 @@
 #include "BermudanBasket.h"
+#include "Tools.h"
+#include <algorithm>
+#include <cmath>
 
+// Default Constructor
 BermudanBasket::BermudanBasket() { }
 
+// Initializer Constructors
 BermudanBasket::BermudanBasket(StochasticProcess* process, double strike, std::vector<double> rates, double maturity, std::vector<double> weights, std::vector<double> exerciseDates, int L)
 	: Options(process, strike, rates, maturity), exerciseDates(exerciseDates), L(L), weights(weights) { }
 
 BermudanBasket::BermudanBasket(StochasticProcess* process, double strike, std::vector<double> rates, double maturity, std::vector<double> weights, std::vector<double> exerciseDates, std::vector<double> spots, Eigen::MatrixXd corrMatrix, int L)
 	: Options(process, strike, rates, maturity), exerciseDates(exerciseDates), L(L), weights(weights), spots(spots), corrMatrix(corrMatrix) { }
 
+// Pricing Methods
 double BermudanBasket::price(int nbSim)
 {
-	int nb_exerciseDates = exerciseDates.size();
-	Eigen::MatrixXd S_exe_M(nbSim, nb_exerciseDates);
-	Eigen::MatrixXd Tau(nbSim, nb_exerciseDates);
-	Eigen::VectorXd weights_V = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(weights.data(), weights.size());
+	int numExerciseDates = exerciseDates.size();
+	Eigen::MatrixXd basketValues(nbSim, numExerciseDates);
+	Eigen::MatrixXd exerciseTimes(nbSim, numExerciseDates);
+	Eigen::VectorXd basketWeightsVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(weights.data(), weights.size());
 
-	double t_k;
-	double somme = 0.;
-	double price;
+	double currentExerciseTime;
+	double optionPrice = 0.0;
 
 	paths_prices.clear();
 	paths_prices.resize(nbSim);
 
-	for (int n = 0; n < nbSim; ++n)
+	// Simulate paths and calculate basket values at each exercise date
+	for (int simIndex = 0; simIndex < nbSim; ++simIndex)
 	{
-		Tau(n, nb_exerciseDates - 1) = maturity;
+		exerciseTimes(simIndex, numExerciseDates - 1) = maturity;
 		process->Simulate(0, maturity, maturity * 365);
 
-		for (int k = 0; k < nb_exerciseDates; k++)
+		for (int dateIndex = 0; dateIndex < numExerciseDates; dateIndex++)
 		{
-			std::vector<double> Snk = process->Get_ValueND(exerciseDates[k]);
-			Eigen::VectorXd Snk_V = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(Snk.data(), Snk.size());
-			S_exe_M(n, k) = weights_V.transpose() * Snk_V;
+			std::vector<double> spotPrices = process->Get_ValueND(exerciseDates[dateIndex]);
+			Eigen::VectorXd spotPricesVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(spotPrices.data(), spotPrices.size());
+			basketValues(simIndex, dateIndex) = basketWeightsVector.transpose() * spotPricesVector;
 		}
 	}
 
-	for (int k = nb_exerciseDates - 2; k >= 0; k--)
+	// Backward induction loop
+	for (int dateIndex = numExerciseDates - 2; dateIndex >= 0; dateIndex--)
 	{
-		t_k = exerciseDates[k];
-		Eigen::MatrixXd A(nbSim, L);
-		Eigen::MatrixXd B(nbSim, 1);
-
-		for (int n = 0; n < nbSim; n++)
-		{
-			double Tk1 = Tau(n, k + 1);
-			int j = nb_exerciseDates - 1;
-			while (Tk1 != exerciseDates[j])
-				j--;
-
-			B(n, 0) = std::exp(-rates[0] * (Tau(n, k + 1) - t_k)) * std::max(S_exe_M(n, j) - strike, 0.);
-
-
-			for (int z = 0; z < L; z++)
-				A(n, z) = fp(S_exe_M(n, k), z);
-		}
-
-		Eigen::VectorXd a(A.colPivHouseholderQr().solve(B));
-
-		for (int n = 0; n < nbSim; n++)
-		{
-			double payoff_actual = std::max(S_exe_M(n, k) - strike, 0.);
-			double expected_payoff = A.row(n) * a;
-
-			if (payoff_actual >= expected_payoff)
-				Tau(n, k) = t_k;
-			else
-				Tau(n, k) = Tau(n, k + 1);
-		}
-
+		backwardInduction(dateIndex, nbSim, basketValues, exerciseTimes);
 	}
 
-	for (int n = 0; n < nbSim; n++)
+	// Calculate option price
+	for (int simIndex = 0; simIndex < nbSim; simIndex++)
 	{
-		double T0 = Tau(n, 0);
-		int j = nb_exerciseDates - 1;
-		while (T0 != exerciseDates[j])
-			j--;
-
-		somme += std::exp(-rates[0] * T0) * std::max(S_exe_M(n, j) - strike, 0.);
-		paths_prices[n] = std::exp(-rates[0] * T0) * std::max(S_exe_M(n, j) - strike, 0.);
+		optionPrice += discountedPayoff(simIndex, numExerciseDates, basketValues, exerciseTimes);
 	}
 
-	price = (somme / nbSim);
+	optionPrice /= nbSim;
 
-	return price;
+	return optionPrice;
 }
 
-double BermudanBasket::priceAntithetic(int nbSim)
+double BermudanBasket::priceAntithetic(int numSimulations)
 {
-	int nb_exerciseDates = exerciseDates.size();
-	Eigen::MatrixXd S_exe_M(nbSim, nb_exerciseDates);
-	Eigen::MatrixXd S_exe_M_anti(nbSim, nb_exerciseDates);
-	Eigen::MatrixXd Tau(nbSim, nb_exerciseDates);
-	Eigen::MatrixXd Tau_anti(nbSim, nb_exerciseDates);
-	Eigen::VectorXd weights_V = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(weights.data(), weights.size());
+	int numExerciseDates = exerciseDates.size();
+	Eigen::MatrixXd basketValuesRegular(numSimulations, numExerciseDates);
+	Eigen::MatrixXd basketValuesAntithetic(numSimulations, numExerciseDates);
+	Eigen::MatrixXd exerciseTimesRegular(numSimulations, numExerciseDates);
+	Eigen::MatrixXd exerciseTimesAntithetic(numSimulations, numExerciseDates);
+	Eigen::VectorXd basketWeightsVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(weights.data(), weights.size());
 
-	double t_k;
-	double somme = 0.;
-	double somme_anti = 0.;
-	double last_value;
+	double sumRegular = 0.0;
+	double sumAntithetic = 0.0;
 
 	paths_prices.clear();
-	paths_prices.resize(nbSim);
+	paths_prices.resize(numSimulations);
 
-	for (int n = 0; n < nbSim; ++n)
+	// Simulate paths and calculate basket values at each exercise date for regular and antithetic paths
+	for (int simIndex = 0; simIndex < numSimulations; ++simIndex)
 	{
-		Tau(n, nb_exerciseDates - 1) = maturity;
-		Tau_anti(n, nb_exerciseDates - 1) = maturity;
+		exerciseTimesRegular(simIndex, numExerciseDates - 1) = maturity;
+		exerciseTimesAntithetic(simIndex, numExerciseDates - 1) = maturity;
 		process->Simulate_Antithetic(0, maturity, maturity * 365);
 
-		for (int k = 0; k < nb_exerciseDates; k++)
+		for (int dateIndex = 0; dateIndex < numExerciseDates; dateIndex++)
 		{
-			std::vector<double> Snk = process->Get_ValueND(exerciseDates[k]);
-			Eigen::VectorXd Snk_V = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(Snk.data(), Snk.size());
-			S_exe_M(n, k) = weights_V.transpose() * Snk_V;
-		}
+			std::vector<double> spotPricesRegular = process->Get_ValueND(exerciseDates[dateIndex]);
+			Eigen::VectorXd spotPricesVectorRegular = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(spotPricesRegular.data(), spotPricesRegular.size());
+			basketValuesRegular(simIndex, dateIndex) = basketWeightsVector.transpose() * spotPricesVectorRegular;
 
-		for (int k = 0; k < nb_exerciseDates; k++)
-		{
-			std::vector<double> Snk_anti = process->Get_ValueND_antithetic(exerciseDates[k]);
-			Eigen::VectorXd Snk_V_anti = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(Snk_anti.data(), Snk_anti.size());
-			S_exe_M_anti(n, k) = weights_V.transpose() * Snk_V_anti;
+			std::vector<double> spotPricesAntithetic = process->Get_ValueND_antithetic(exerciseDates[dateIndex]);
+			Eigen::VectorXd spotPricesVectorAntithetic = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(spotPricesAntithetic.data(), spotPricesAntithetic.size());
+			basketValuesAntithetic(simIndex, dateIndex) = basketWeightsVector.transpose() * spotPricesVectorAntithetic;
 		}
-
 	}
 
-	for (int k = nb_exerciseDates - 2; k >= 0; k--)
+	// Perform backward induction for regular and antithetic paths
+	for (int dateIndex = numExerciseDates - 2; dateIndex >= 0; dateIndex--)
 	{
-		t_k = exerciseDates[k];
-		Eigen::MatrixXd A(nbSim, L);
-		Eigen::MatrixXd B(nbSim, 1);
-		Eigen::MatrixXd A_anti(nbSim, L);
-		Eigen::MatrixXd B_anti(nbSim, 1);
-
-		for (int n = 0; n < nbSim; n++)
-		{
-			double Tk1 = Tau(n, k + 1);
-			double Tk1_anti = Tau_anti(n, k + 1);
-			int j = nb_exerciseDates - 1;
-			while (Tk1 != exerciseDates[j])
-				j--;
-
-			B(n, 0) = std::exp(-rates[0] * (Tau(n, k + 1) - t_k)) * std::max(S_exe_M(n, j) - strike, 0.);
-
-			j = nb_exerciseDates - 1;
-			while (Tk1_anti != exerciseDates[j])
-				j--;
-
-			B_anti(n, 0) = std::exp(-rates[0] * (Tau_anti(n, k + 1) - t_k)) * std::max(S_exe_M_anti(n, j) - strike, 0.);
-
-			for (int z = 0; z < L; z++)
-				A(n, z) = fp(S_exe_M(n, k), z);
-
-			for (int z = 0; z < L; z++)
-				A_anti(n, z) = fp(S_exe_M_anti(n, k), z);
-
-		}
-
-		Eigen::VectorXd a(A.colPivHouseholderQr().solve(B));
-		Eigen::VectorXd a_anti(A_anti.colPivHouseholderQr().solve(B_anti));
-
-		for (int n = 0; n < nbSim; n++)
-		{
-			double payoff_actual = std::max(S_exe_M(n, k) - strike, 0.);
-			double expected_payoff = A.row(n) * a;
-
-			double payoff_actual_anti = std::max(S_exe_M_anti(n, k) - strike, 0.);
-			double expected_payoff_anti = A_anti.row(n) * a_anti;
-
-			if (payoff_actual >= expected_payoff)
-				Tau(n, k) = t_k;
-			else
-				Tau(n, k) = Tau(n, k + 1);
-
-			if (payoff_actual_anti >= expected_payoff_anti)
-				Tau_anti(n, k) = t_k;
-			else
-				Tau_anti(n, k) = Tau_anti(n, k + 1);
-		}
+		backwardInduction(dateIndex, numSimulations, basketValuesRegular, exerciseTimesRegular);
+		backwardInduction(dateIndex, numSimulations, basketValuesAntithetic, exerciseTimesAntithetic);
 	}
 
-	for (int n = 0; n < nbSim; n++)
+	// Calculate option price for regular and antithetic paths
+	for (int simIndex = 0; simIndex < numSimulations; simIndex++)
 	{
-		double T0 = Tau(n, 0);
-		int j = nb_exerciseDates - 1;
-		while (T0 != exerciseDates[j])
-			j--;
-		somme += std::exp(-rates[0] * T0) * std::max(S_exe_M(n, j) - strike, 0.);
-
-		T0 = Tau_anti(n, 0);
-		j = nb_exerciseDates - 1;
-		while (T0 != exerciseDates[j])
-			j--;
-
-		somme_anti += std::exp(-rates[0] * T0) * std::max(S_exe_M_anti(n, j) - strike, 0.);
-		paths_prices[n] = (std::exp(-rates[0] * T0) * std::max(S_exe_M(n, j) - strike, 0.) + std::exp(-rates[0] * T0) * std::max(S_exe_M_anti(n, j) - strike, 0.)) / 2;
+		sumRegular += discountedPayoff(simIndex, numExerciseDates, basketValuesRegular, exerciseTimesRegular);
+		sumAntithetic += discountedPayoff(simIndex, numExerciseDates, basketValuesAntithetic, exerciseTimesAntithetic);
 	}
 
-	double price = ((somme + somme_anti) / (2 * nbSim));
+	double price = ((sumRegular + sumAntithetic) / (2 * numSimulations));
 
 	return price;
 }
 
-double BermudanBasket::priceControlVariate(int nbSim)
+double BermudanBasket::priceControlVariate(int numSimulations)
 {
+	int numExerciseDates = exerciseDates.size();
+	Eigen::MatrixXd basketValues(numSimulations, numExerciseDates);
+	Eigen::MatrixXd basketValuesLog(numSimulations, numExerciseDates);
+	Eigen::MatrixXd exerciseTimes(numSimulations, numExerciseDates);
+	Eigen::VectorXd basketWeightsVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(weights.data(), weights.size());
 
-	int nb_exerciseDates = exerciseDates.size();
-	Eigen::MatrixXd S_exe_M(nbSim, nb_exerciseDates);
-	Eigen::MatrixXd S_exe_M_L(nbSim, nb_exerciseDates);
-	Eigen::MatrixXd Tau(nbSim, nb_exerciseDates);
-	Eigen::VectorXd weights_V = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(weights.data(), weights.size());
-
-	double tk;
-	double somme = 0.;
-	double last_value;
+	double sum = 0.0;
+	double E_Y = compute_expected_value_control_variate(spots, weights, strike, rates[0], corrMatrix, maturity);
 
 	paths_prices.clear();
-	paths_prices.resize(nbSim);
-	double E_Y = Compute_E_Ybis(spots, weights, strike, rates[0], corrMatrix, maturity);
+	paths_prices.resize(numSimulations);
 
-
-	for (int n = 0; n < nbSim; ++n)
+	// Simulate paths and calculate basket values at each exercise date
+	for (int simIndex = 0; simIndex < numSimulations; ++simIndex)
 	{
-		Tau(n, nb_exerciseDates - 1) = maturity;
+		exerciseTimes(simIndex, numExerciseDates - 1) = maturity;
 		process->Simulate(0, maturity, maturity * 365);
 
-		for (int k = 0; k < nb_exerciseDates; k++)
+		for (int dateIndex = 0; dateIndex < numExerciseDates; dateIndex++)
 		{
-			std::vector<double> Snk = process->Get_ValueND(exerciseDates[k]);
-			std::vector<double> Snk_L(Snk.size());
-			for (int j = 0; j < spots.size(); j++)
-				Snk_L[j] = log(Snk[j]);
+			std::vector<double> spotPrices = process->Get_ValueND(exerciseDates[dateIndex]);
+			std::vector<double> logSpotPrices(spotPrices.size());
+			std::transform(spotPrices.begin(), spotPrices.end(), logSpotPrices.begin(), [](double price) { return log(price); });
 
-			Eigen::VectorXd Snk_V = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(Snk.data(), Snk.size());
-			Eigen::VectorXd Snk_V_L = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(Snk_L.data(), Snk_L.size());
-			S_exe_M(n, k) = weights_V.transpose() * Snk_V;
-			S_exe_M_L(n, k) = weights_V.transpose() * Snk_V_L;
+			Eigen::VectorXd spotPricesVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(spotPrices.data(), spotPrices.size());
+			Eigen::VectorXd logSpotPricesVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(logSpotPrices.data(), logSpotPrices.size());
+
+			basketValues(simIndex, dateIndex) = basketWeightsVector.transpose() * spotPricesVector;
+			basketValuesLog(simIndex, dateIndex) = basketWeightsVector.transpose() * logSpotPricesVector;
 		}
 	}
 
-
-	for (int k = nb_exerciseDates - 2; k >= 0; k--)
+	// Perform backward induction
+	for (int dateIndex = numExerciseDates - 2; dateIndex >= 0; dateIndex--)
 	{
-		tk = exerciseDates[k];
-		Eigen::MatrixXd A(nbSim, L);
-		Eigen::MatrixXd B(nbSim, 1);
+		double currentExerciseTime = exerciseDates[dateIndex];
+		Eigen::MatrixXd regressionMatrix(numSimulations, L);
+		Eigen::MatrixXd regressionTarget(numSimulations, 1);
 
-		for (int n = 0; n < nbSim; n++)
+		// Calculate regression coefficients
+		for (int simIndex = 0; simIndex < numSimulations; simIndex++)
 		{
-			double Tk1 = Tau(n, k + 1);
-			int j = nb_exerciseDates - 1;
-			while (Tk1 != exerciseDates[j])
-				j--;
+			double nextExerciseTime = exerciseTimes(simIndex, dateIndex + 1);
+			int lastIndex = numExerciseDates - 1;
+			while (nextExerciseTime != exerciseDates[lastIndex])
+				lastIndex--;
 
-			B(n, 0) = std::exp(-rates[0] * (Tau(n, k + 1) - tk)) * (std::max(S_exe_M(n, j) - strike, 0.) - std::max(exp(S_exe_M_L(n, j)) - strike, 0.) + E_Y);
+			double payoffDiff = std::max(basketValues(simIndex, lastIndex) - strike, 0.) - std::max(exp(basketValuesLog(simIndex, lastIndex)) - strike, 0.) + E_Y;
 
-			for (int z = 0; z < L; z++)
-				A(n, z) = fp(S_exe_M(n, k), z);
+			regressionTarget(simIndex, 0) = std::exp(-rates[0] * (exerciseTimes(simIndex, dateIndex + 1) - currentExerciseTime)) * payoffDiff;
+
+			for (int powerIndex = 0; powerIndex < L; powerIndex++)
+				regressionMatrix(simIndex, powerIndex) = pow(basketValues(simIndex, dateIndex), powerIndex);
 		}
 
-		Eigen::VectorXd a(A.colPivHouseholderQr().solve(B));
+		// Solve for regression coefficients
+		Eigen::VectorXd regressionCoefficients(regressionMatrix.colPivHouseholderQr().solve(regressionTarget));
 
-		for (int n = 0; n < nbSim; n++)
+		// Determine optimal exercise strategy
+		for (int simIndex = 0; simIndex < numSimulations; simIndex++)
 		{
-			double payoff_actual = std::max(S_exe_M(n, k) - strike, 0.) - std::max(exp(S_exe_M_L(n, k)) - strike, 0.) + E_Y;
-			double expected_payoff = A.row(n) * a;
+			double actualPayoffDiff = std::max(basketValues(simIndex, dateIndex) - strike, 0.) - std::max(exp(basketValuesLog(simIndex, dateIndex)) - strike, 0.) + E_Y;
+			double expectedPayoffDiff = regressionMatrix.row(simIndex) * regressionCoefficients;
 
-			if (payoff_actual >= expected_payoff)
-				Tau(n, k) = tk;
-			else
-				Tau(n, k) = Tau(n, k + 1);
+			exerciseTimes(simIndex, dateIndex) = (actualPayoffDiff >= expectedPayoffDiff) ? currentExerciseTime : exerciseTimes(simIndex, dateIndex + 1);
 		}
 	}
 
-	for (int n = 0; n < nbSim; n++)
+	// Calculate option price
+	for (int simIndex = 0; simIndex < numSimulations; simIndex++)
 	{
-		double T0 = Tau(n, 0);
-		int j = nb_exerciseDates - 1;
-		while (T0 != exerciseDates[j])
-			j--;
+		// Find exercise time at initial date
+		double initialExerciseTime = exerciseTimes(simIndex, 0);
+		int lastIndex = numExerciseDates - 1;
 
-		somme += std::exp(-rates[0] * T0) * (std::max(S_exe_M(n, j) - strike, 0.) - std::max(exp(S_exe_M_L(n, j)) - strike, 0.) + E_Y);
-		paths_prices[n] = std::exp(-rates[0] * T0) * (std::max(S_exe_M(n, j) - strike, 0.) - std::max(exp(S_exe_M_L(n, j)) - strike, 0.) + E_Y);
+		while (initialExerciseTime != exerciseDates[lastIndex])
+			lastIndex--;
+
+		double discountedPayoff = std::exp(-rates[0] * initialExerciseTime) * (std::max(basketValues(simIndex, lastIndex) - strike, 0.) - std::max(exp(basketValuesLog(simIndex, lastIndex)) - strike, 0.) + E_Y);
+
+		paths_prices[simIndex] = discountedPayoff;
+		sum += discountedPayoff;
 	}
 
-	double price = (somme / nbSim);
-	
-	return price;
-}
-
-
-double Compute_E_Ybis(std::vector<double> S, std::vector<double> weights, double K, double r, Eigen::MatrixXd VarCovar, double T)
-{
-
-	double S_Y = 1;
-	double R_Y;
-	double vol_Y;
-
-	Eigen::VectorXd weights_M = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(weights.data(), weights.size());
-	Eigen::MatrixXd B;
-
-	Eigen::EigenSolver<Eigen::MatrixXd> es(VarCovar);
-
-	if (VarCovar.determinant() == 0)
-	{
-		Eigen::MatrixXd D = es.pseudoEigenvalueMatrix();
-		Eigen::MatrixXd P = es.pseudoEigenvectors();
-		B = P * D;
-	}
-	else
-	{
-		B = VarCovar.llt().matrixL();
-	}
-
-	for (int i = 0; i < S.size(); i++)
-	{
-		S_Y *= pow(S[i], weights[i]);
-	}
-
-
-	Eigen::MatrixXd sigma2 = B * B;
-	Eigen::VectorXd sigmai = sigma2.colwise().sum();
-	double R1 = 0.5 * weights_M.transpose() * sigmai;
-	double R2 = 0.5 * weights_M.transpose() * B * B.transpose() * weights_M;
-	R_Y = r - R1 + R2;
-
-
-	vol_Y = pow(weights_M.transpose() * B * B.transpose() * weights_M, 0.5);
-
-	double price = BS_Call(S_Y, K, vol_Y, T, R_Y);
+	double price = (sum / numSimulations);
 
 	return price;
 }
 
-double BermudanBasket::priceVDC(int nbSim)
+double BermudanBasket::priceVDC(int numSimulations)
 {
-	int nb_exerciseDates = exerciseDates.size();
-	Eigen::MatrixXd S_exe_M(nbSim, nb_exerciseDates);
-	Eigen::MatrixXd Tau(nbSim, nb_exerciseDates);
-	Eigen::VectorXd weights_V = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(weights.data(), weights.size());
+	int numExerciseDates = exerciseDates.size();
+	Eigen::MatrixXd basketValues(numSimulations, numExerciseDates);
+	Eigen::MatrixXd exerciseTimes(numSimulations, numExerciseDates);
+	Eigen::VectorXd basketWeightsVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(weights.data(), weights.size());
 
-	double tk;
-	double somme = 0.;
-	double last_value;
+	double sum = 0.0;
 
 	paths_prices.clear();
-	paths_prices.resize(nbSim);
+	paths_prices.resize(numSimulations);
 
-	for (int n = 0; n < nbSim; ++n)
+	// Simulate paths and calculate basket values at each exercise date
+	for (int simIndex = 0; simIndex < numSimulations; ++simIndex)
 	{
-		Tau(n, nb_exerciseDates - 1) = maturity;
-		process->Simulate_VDC(0, maturity, maturity * 365, n, nbSim);
+		exerciseTimes(simIndex, numExerciseDates - 1) = maturity;
+		process->Simulate_VDC(0, maturity, maturity * 365, simIndex, numSimulations);
 
-		for (int k = 0; k < nb_exerciseDates; k++)
+		for (int dateIndex = 0; dateIndex < numExerciseDates; dateIndex++)
 		{
-			std::vector<double> Snk = process->Get_ValueND(exerciseDates[k]);
-			Eigen::VectorXd Snk_V = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(Snk.data(), Snk.size());
-			S_exe_M(n, k) = weights_V.transpose() * Snk_V;
+			std::vector<double> spotPrices = process->Get_ValueND(exerciseDates[dateIndex]);
+			Eigen::VectorXd spotPricesVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(spotPrices.data(), spotPrices.size());
+			basketValues(simIndex, dateIndex) = basketWeightsVector.transpose() * spotPricesVector;
 		}
 	}
 
-	for (int k = nb_exerciseDates - 2; k >= 0; k--)
+	// Perform backward induction
+	for (int dateIndex = numExerciseDates - 2; dateIndex >= 0; dateIndex--)
 	{
-		tk = exerciseDates[k];
-		Eigen::MatrixXd A(nbSim, L);
-		Eigen::MatrixXd B(nbSim, 1);
-
-		for (int n = 0; n < nbSim; n++)
-		{
-			double Tk1 = Tau(n, k + 1);
-			int j = nb_exerciseDates - 1;
-			while (Tk1 != exerciseDates[j])
-				j--;
-
-			B(n, 0) = std::exp(-rates[0] * (Tau(n, k + 1) - tk)) * std::max(S_exe_M(n, j) - strike, 0.);
-
-			for (int z = 0; z < L; z++)
-				A(n, z) = fp(S_exe_M(n, k), z);
-		}
-
-		Eigen::VectorXd a(A.colPivHouseholderQr().solve(B));
-
-		for (int n = 0; n < nbSim; n++)
-		{
-			double payoff_actual = std::max(S_exe_M(n, k) - strike, 0.);
-			double expected_payoff = A.row(n) * a;
-
-			if (payoff_actual >= expected_payoff)
-			{
-				Tau(n, k) = tk;
-			}
-			else
-			{
-				Tau(n, k) = Tau(n, k + 1);
-			}
-		}
-
-	}
-	for (int n = 0; n < nbSim; n++)
-	{
-		double T0 = Tau(n, 0);
-		int j = nb_exerciseDates - 1;
-		while (T0 != exerciseDates[j])
-			j--;
-
-		somme += std::exp(-rates[0] * T0) * std::max(S_exe_M(n, j) - strike, 0.);
-		paths_prices[n] = std::exp(-rates[0] * T0) * std::max(S_exe_M(n, j) - strike, 0.);
+		backwardInduction(dateIndex, numSimulations, basketValues, exerciseTimes);
 	}
 
-	double price = (somme / nbSim);
-	
+	// Calculate option price
+	for (int simIndex = 0; simIndex < numSimulations; simIndex++)
+	{
+		sum += discountedPayoff(simIndex, numExerciseDates, basketValues, exerciseTimes);
+	}
+
+	double price = (sum / numSimulations);
+
 	return price;
+}
+
+// Bermudan Helper Functions
+void BermudanBasket::backwardInduction(int dateIndex, int numSimulations, Eigen::MatrixXd& basketValues, Eigen::MatrixXd& exerciseTimes)
+{
+	int numExerciseDates = exerciseDates.size();
+    double currentExerciseTime = exerciseDates[dateIndex];
+    Eigen::MatrixXd regressionMatrix(numSimulations, L);
+    Eigen::MatrixXd regressionTarget(numSimulations, 1);
+
+	// Calculate regression coefficients
+    for (int simIndex = 0; simIndex < numSimulations; simIndex++)
+    {
+        double nextExerciseTime = exerciseTimes(simIndex, dateIndex + 1);
+        int lastIndex = numExerciseDates - 1;
+        while (nextExerciseTime != exerciseDates[lastIndex])
+            lastIndex--;
+
+        regressionTarget(simIndex, 0) = std::exp(-rates[0] * (exerciseTimes(simIndex, dateIndex + 1) - currentExerciseTime)) * std::max(basketValues(simIndex, lastIndex) - strike, 0.);
+
+        for (int powerIndex = 0; powerIndex < L; powerIndex++)
+            regressionMatrix(simIndex, powerIndex) = pow(basketValues(simIndex, dateIndex), powerIndex);
+    }
+
+	// Solve for regression coefficients
+    Eigen::VectorXd regressionCoefficients(regressionMatrix.colPivHouseholderQr().solve(regressionTarget));
+
+	// Determine optimal exercise strategy
+    for (int simIndex = 0; simIndex < numSimulations; simIndex++)
+    {
+        double actualPayoff = std::max(basketValues(simIndex, dateIndex) - strike, 0.);
+        double expectedPayoff = regressionMatrix.row(simIndex) * regressionCoefficients;
+
+        exerciseTimes(simIndex, dateIndex) = (actualPayoff >= expectedPayoff) ? currentExerciseTime : exerciseTimes(simIndex, dateIndex + 1);
+    }
+}
+
+double BermudanBasket::discountedPayoff(int simIndex, int numExerciseDates, Eigen::MatrixXd& basketValues, Eigen::MatrixXd& exerciseTimes)
+{
+	// Find exercise time at initial date
+	double initialExerciseTime = exerciseTimes(simIndex, 0);
+	int lastIndex = numExerciseDates - 1;
+
+	while (initialExerciseTime != exerciseDates[lastIndex])
+		lastIndex--;
+
+	double discountedPayoff = std::exp(-rates[0] * initialExerciseTime) * std::max(basketValues(simIndex, lastIndex) - strike, 0.);
+
+	paths_prices[simIndex] = discountedPayoff;
+	return discountedPayoff;
 }
