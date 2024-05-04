@@ -11,7 +11,7 @@
 // Instance object constructor: it is meant to hold the main parameters, sequences and schemes of the resolution method
 Instance::Instance() {}
 
-// This functions simply fills the instance with the base parameters for the option pricing: (Prof.) can freely modify any parameters here
+// This function simply fills the instance with the base parameters for the option pricing: (Prof.) can freely modify any parameters here
 void Instance::fillWithParameters()
 {
     i_bermudans = { 1.0 / 12.0, 1.0 / 6.0, 3.0 / 12.0 };
