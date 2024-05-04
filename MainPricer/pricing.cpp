@@ -8,11 +8,11 @@ Priceable::Priceable(Instance inst, EuropeanBasket* EuropeanOption, BermudanBask
 
 // Function used to encompass the computation of variances and confidence intervals for all the required pricing variations for a given structure
 void Priceable::computeMetrics(Instance& inst, EuropeanBasket* EuropeanOption, BermudanBasket* BermudanOption, bool quasiMC) {
-    pricesRaw = computePricesRaw(inst, EuropeanOption, BermudanOption);
-    variancesRaw = computeVariances(EuropeanOption, BermudanOption);
-    confIntervalRaw = computeConfInterval(EuropeanOption, BermudanOption);
-
     if (!quasiMC) {
+        pricesRaw = computePricesRaw(inst, EuropeanOption, BermudanOption);
+        variancesRaw = computeVariances(EuropeanOption, BermudanOption);
+        confIntervalRaw = computeConfInterval(EuropeanOption, BermudanOption);
+
         pricesAntithetic = computePricesAntithetic(inst, EuropeanOption, BermudanOption);
         variancesAntithetic = computeVariances(EuropeanOption, BermudanOption);
         confIntervalAntithetic = computeConfInterval(EuropeanOption, BermudanOption);
@@ -20,6 +20,11 @@ void Priceable::computeMetrics(Instance& inst, EuropeanBasket* EuropeanOption, B
         pricesControlVar = computePricesControlVar(inst, EuropeanOption, BermudanOption);
         variancesControlVar = computeVariances(EuropeanOption, BermudanOption);
         confIntervalControlVar = computeConfInterval(EuropeanOption, BermudanOption);
+    }
+    else {
+        pricesQuasiMC = computePricesQuasiMC(inst, EuropeanOption, BermudanOption);
+        variancesQuasiMC = computeVariances(EuropeanOption, BermudanOption);
+        confIntervalQuasiMC = computeConfInterval(EuropeanOption, BermudanOption);
     }
 }
 
@@ -38,6 +43,11 @@ std::pair<double, double> Priceable::computePricesControlVar(Instance& inst, Eur
     return { EuropeanOption->priceControlVariate(inst.getNbPaths()), BermudanOption->priceControlVariate(inst.getNbPaths()) };
 }
 
+// Function that returns the prices of both the European and Bermudan options as a pair considering van der corput sequence
+std::pair<double, double> Priceable::computePricesQuasiMC(Instance& inst, EuropeanBasket* EuropeanOption, BermudanBasket* BermudanOption) {
+    return { EuropeanOption->price(inst.getNbPaths()), BermudanOption->price(inst.getNbPaths()) };
+}
+
 // Function that returns the pair of variances for both options
 std::pair<double, double> Priceable::computeVariances(EuropeanBasket* EuropeanOption, BermudanBasket* BermudanOption) {
     return { EuropeanOption->variance(), BermudanOption->variance() };
@@ -45,5 +55,5 @@ std::pair<double, double> Priceable::computeVariances(EuropeanBasket* EuropeanOp
 
 // Function that returns the pair of confidence intervals for both options
 std::pair<std::vector<double>, std::vector<double>> Priceable::computeConfInterval(EuropeanBasket* EuropeanOption, BermudanBasket* BermudanOption) {
-    return { EuropeanOption->confidenceInterval(0.99), BermudanOption->confidenceInterval(0.99) };
+    return { EuropeanOption->confidenceInterval(0.995), BermudanOption->confidenceInterval(0.995) };
 }

@@ -9,29 +9,37 @@ Display::Display(Priceable* pric) {}
 // This is the function that prompts out the results
 void Display::display(Priceable* pric, bool quasiMC)
 {
-    // We initially store the pricing results with no variations
-    std::pair<double, double> pricesRaw = pric->getPricesRaw();
+    // We initialize our variables first (storing the QuasiMC result in Raw for conveniency, it has no impact)
+    std::pair<double, double> pricesRaw;
     std::pair<double, double> pricesAntithetic;
     std::pair<double, double> pricesControlVar;
 
-    std::pair<double, double> variancesRaw = pric->getVariancesRaw();
+    std::pair<double, double> variancesRaw;
     std::pair<double, double> variancesAntithetic;
     std::pair<double, double> variancesControlVar;
 
-    std::pair<std::vector<double>, std::vector<double>> confIntervalsRaw = pric->getConfIntervalRaw();
+    std::pair<std::vector<double>, std::vector<double>> confIntervalsRaw;
     std::pair<std::vector<double>, std::vector<double>> confIntervalsAntithetic;
     std::pair<std::vector<double>, std::vector<double>> confIntervalsControlVar;
 
     // In that case, we also consider Monte-Carlo variations, so we include their pricing results
     if (!quasiMC) {
+        pricesRaw = pric->getPricesRaw();
         pricesAntithetic = pric->getPricesAntithetic();
         pricesControlVar = pric->getPricesControlVar();
 
+        variancesRaw = pric->getVariancesRaw();
         variancesAntithetic = pric->getVariancesAntithetic();
         variancesControlVar = pric->getVariancesControlVar();
 
+        confIntervalsRaw = pric->getConfIntervalRaw();
         confIntervalsAntithetic = pric->getConfIntervalAntithetic();
         confIntervalsControlVar = pric->getConfIntervalControlVar();
+    }
+    else {
+        pricesRaw = pric->getPricesQuasiMC();
+        variancesRaw = pric->getVariancesQuasiMC();
+        confIntervalsRaw = pric->getConfIntervalQuasiMC();
     }
 
     // The option name is also retrieved to increase readability
