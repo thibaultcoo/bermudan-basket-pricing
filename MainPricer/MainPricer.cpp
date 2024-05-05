@@ -7,7 +7,7 @@
 
 /*
 Pricing of bermudan basket options - M203 Numerical finance project
-Marchessaux François, Louis Faverjon, Collin Thibault
+Marchessaux François, Louis Faverjon, Collin Thibault, Piancastelli Robin
 */
 
 int main()
