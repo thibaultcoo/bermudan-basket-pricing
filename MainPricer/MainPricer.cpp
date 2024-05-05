@@ -37,9 +37,13 @@ int main()
     BermudanBasket* BermudanMilsteinQuasiMC = new BermudanBasket(Inst.getMilsteinQuasiMC(), Inst);
 
     // Finalizing the initialization the priceable objects
+    std::cout << "Pricing European and Bermudan Basket options with Euler scheme ..." << std::endl;
     Priceable* Euler = new Priceable(Inst, EuropeanEuler, BermudanEuler, "Basket Call Euler", false);
+    std::cout << "Pricing European and Bermudan Basket options with Milstein scheme ..." << std::endl;
     Priceable* Milstein = new Priceable(Inst, EuropeanMilstein, BermudanMilstein, "Basket Call Milstein", false);
+    std::cout << "Pricing European and Bermudan Basket options with Euler scheme and Quasi Monte Carlo ..." << std::endl;
     Priceable* EulerQuasiMC = new Priceable(Inst, EuropeanEulerQuasiMC, BermudanEulerQuasiMC, "Basket Call Euler with Quasi Monte-Carlo", true);
+    std::cout << "Pricing European and Bermudan Basket options with Milstein scheme and Quasi Monte Carlo ... \n\n\n" << std::endl;
     Priceable* MilsteinQuasiMC = new Priceable(Inst, EuropeanMilsteinQuasiMC, BermudanMilsteinQuasiMC, "Basket Call Milstein with Quasi Monte-Carlo", true);
 
     // Initializing the clean displaying prompter
